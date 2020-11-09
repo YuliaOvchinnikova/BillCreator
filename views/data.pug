@@ -1,0 +1,68 @@
+extends layout
+  
+
+block content
+    script.
+      function sendEmails() {
+      alert("Emails were sent successfully!");
+      } 
+    //- back home
+    h1#second_header Data
+    a#back(href='/') 
+        i.fa.fa-home
+        |  Back
+    br
+    br
+    br
+    //- Link for downloading full report
+    div
+        a(href='/data/full_report' download='full_report.pdf') 
+            i.fa.fa-download
+            |   Download full report
+    br
+    br
+    //- Link for downloading bills who doesnt have emails
+    div
+        a(href='/data/bills' download='bills.pdf') 
+            i.fa.fa-download
+            |   Download bills
+    br
+    br
+    //- Button "send emails"
+    button(type='button' onclick='sendEmails()')
+        i.fa.fa-envelope-o
+        |   Send email
+
+    div
+        table(style='width:30%;' border='1')
+            tbody
+                tr
+                    th Due date:
+                    td #{duedate}
+                tr
+                    th Account number:
+                    td #{accountnumber}
+                tr
+                    th Message:
+                    td #{message}
+    div
+        table(style='width:100%;' border='1')
+            thead
+                tr
+                    th Last Name
+                    th First Name
+                    th Address
+                    th Postal Code
+                    th Post Office
+                    th Email
+                    th Reference Number
+            tbody
+                each record in records
+                    tr
+                        td #{record.lastname}
+                        td #{record.firstname}
+                        td #{record.address}
+                        td #{record.postalcode}
+                        td #{record.postoffice}
+                        td #{record.email}
+                        td #{record.referencenumber}    

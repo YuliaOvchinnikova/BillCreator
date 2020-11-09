@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h1 Bill Creator
+  form(action='/data' method='post' enctype='multipart/form-data')
+    input#dueDate(type='date' placeholder='Set due date' name='dueDate' required='')
+    br
+    br
+    input#accountNumber(type='number' size='20' placeholder='Account number' name="accountNumber" required='')
+    br
+    br
+    input#message(type='text' size='100' placeholder='Message' name="message" required='')
+    br
+    br
+    label(for='myfile') Select a file:
+    br
+    input#myfile(type='file' name='myfile' accept='text/cvs' required='')
+    br
+    br
+    input(type='submit' value='Create')
