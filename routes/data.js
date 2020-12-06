@@ -1,7 +1,7 @@
 var express = require("express");
 var multer = require("multer");
 var upload = multer({ dest: "uploads/" });
-const csv = require("csv-parser");
+const parse = require("csv-parse/lib/sync");
 const fs = require("fs");
 const PDFDocument = require("../utils/pdf-tables");
 
@@ -11,39 +11,37 @@ let db = new Map();
 
 // Upload data file
 router.post("/", upload.single("myfile"), function (req, res, next) {
-  const results = [];
-  db[req.session.id] = {};
-  db[req.session.id].duedate = req.body.dueDate;
-  db[req.session.id].accountnumber = req.body.accountNumber;
-  db[req.session.id].message = req.body.message;
+  let newRecord = {
+    duedate: req.body.dueDate,
+    accountnumber: req.body.accountNumber,
+    message: req.body.message,
+    records: parseData(req.file.path, req.body.dueDate),
+  };
 
-  // reading from file
-  fs.createReadStream(req.file.path)
-    .pipe(csv({ separator: ";" }))
-    .on("data", (data) => results.push(data))
-    .on("end", () => {
-      fs.unlinkSync(req.file.path);
+  fs.unlinkSync(req.file.path);
 
-      db[req.session.id].records = results.map((r, index) => {
-        return {
-          lastname: r["Last name"],
-          firstname: r["First name"],
-          address: r["Address"],
-          postalcode: r["Postal code"],
-          postoffice: r["Post office"],
-          email: r["Email"],
-          referencenumber: generateReferenceNumber(index, req.body.dueDate),
-        };
-      });
+  db[req.session.id] = newRecord;
 
-      res.render("data", {
-        duedate: db[req.session.id].duedate,
-        accountnumber: db[req.session.id].accountnumber,
-        message: db[req.session.id].message,
-        records: db[req.session.id].records,
-      });
-    });
+  res.render("data", newRecord);
 });
+
+const parseData = (path, dueDate) => {
+  let parsedRecords = parse(fs.readFileSync(path), {
+    columns: true,
+    skip_empty_lines: true,
+    delimiter: ";",
+  });
+
+  return parsedRecords.map((r, index) => ({
+    lastname: r["Last name"],
+    firstname: r["First name"],
+    address: r["Address"],
+    postalcode: r["Postal code"],
+    postoffice: r["Post office"],
+    email: r["Email"],
+    referencenumber: generateReferenceNumber(index, dueDate),
+  }));
+};
 
 // Create PDF doc
 router.get("/full_report", function (req, res, next) {
@@ -53,7 +51,7 @@ router.get("/full_report", function (req, res, next) {
 
   doc.pipe(res);
 
-  // Create table
+  // Create table for HTML
   let rows = db[req.session.id].records.map((r) => {
     return [
       r.lastname,
