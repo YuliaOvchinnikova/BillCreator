@@ -50,8 +50,11 @@ router.get("/full_report", function (req, res, next) {
   });
 
   doc.pipe(res);
+  if (db[req.session.id] === undefined) {
+    doc.end();
+  }
 
-  // Create table for HTML
+  // Create table for PDF
   let rows = db[req.session.id].records.map((r) => {
     return [
       r.lastname,
@@ -86,6 +89,9 @@ router.get("/bills", function (req, res, next) {
   const doc = new PDFDocument();
 
   doc.pipe(res);
+  if (db[req.session.id] === undefined) {
+    doc.end();
+  }
 
   // PDF bills for everyone who doesnt have email
   db[req.session.id].records
