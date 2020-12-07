@@ -14,6 +14,7 @@ router.post("/", upload.single("myfile"), function (req, res, next) {
   let newRecord = {
     duedate: req.body.dueDate,
     accountnumber: req.body.accountNumber,
+    amount: req.body.amount,
     message: req.body.message,
     records: parseData(req.file.path, req.body.dueDate),
   };
@@ -117,9 +118,15 @@ router.get("/bills", function (req, res, next) {
         .font("Helvetica")
         .text("Due Date:", 50, customerInformationTop + 15)
         .text(db[req.session.id].duedate, 170, customerInformationTop + 15)
-        .text("Reference Number:", 50, customerInformationTop + 30)
+        .text("Bill amount:", 50, customerInformationTop + 30) //amount
+        .text(
+          db[req.session.id].amount + " €",
+          170,
+          customerInformationTop + 30
+        )
+        .text("Reference Number:", 50, customerInformationTop + 45)
         .font("Helvetica-Bold")
-        .text(r.referencenumber, 170, customerInformationTop + 30)
+        .text(r.referencenumber, 170, customerInformationTop + 45)
         .font("Helvetica-Bold")
         .text(r.lastname + " " + r.firstname, 300, customerInformationTop)
         .font("Helvetica")
@@ -131,12 +138,12 @@ router.get("/bills", function (req, res, next) {
         )
         .moveDown();
 
-      generateHr(doc, customerInformationTop + 50);
+      generateHr(doc, customerInformationTop + 65);
       doc
         .font("Helvetica-Bold")
-        .text("Message:", 50, customerInformationTop + 60)
+        .text("Message:", 50, customerInformationTop + 75)
         .font("Helvetica")
-        .text(db[req.session.id].message, 170, customerInformationTop + 60);
+        .text(db[req.session.id].message, 170, customerInformationTop + 75);
 
       doc.addPage();
     });
